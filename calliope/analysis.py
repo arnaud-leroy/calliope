@@ -101,7 +101,7 @@ def plot_timeseries(
         else:
             ticks = 'monthly'
     # Set up time series to plot, dividing it by time_res_series
-    time_res = solution['time_res'].to_pandas()
+    time_res = solution['time_resolution'].to_pandas()
     data = data.to_pandas().T
     plot_df = data.divide(time_res, axis='index')
     if resample_options and resample_func:
@@ -246,7 +246,7 @@ def plot_transmission(solution, tech='ac_transmission', carrier='power',
 
     # Determine maximum that could have been transmitted across a link
     def get_edge_capacity(solution, a, b):
-        hrs = solution['time_res'].to_pandas().sum()
+        hrs = solution['time_resolution'].to_pandas().sum()
         cap = (solution['e_cap_net'].loc[dict(x=a, y='{}:'.format(tech) + b)]
                                     .to_pandas() * hrs)
         return cap
@@ -447,7 +447,7 @@ def get_unmet_demand_hours(solution, carrier='power', details=False):
              .sum(dim='x')
              .to_pandas())
     timesteps = len(unmet[unmet > 0])
-    hours = solution.time_res.to_pandas()[unmet > 0].sum()
+    hours = solution.time_resolution.to_pandas()[unmet > 0].sum()
     if details:
         return {'hours': hours, 'timesteps': timesteps,
                 'dates': unmet[unmet > 0].index}
@@ -462,7 +462,7 @@ def areas_below_resolution(solution, resolution):
 
     """
     # TODO: add unit tests
-    time_res = solution.time_res.to_pandas()
+    time_res = solution.time_resolution.to_pandas()
     selected = time_res[time_res < resolution]
     return list(au._get_ranges(selected.index.tolist()))
 

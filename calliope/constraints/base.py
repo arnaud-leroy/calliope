@@ -162,7 +162,7 @@ def node_resource(model):
 
 def node_energy_balance(model):
     m = model.m
-    time_res = model.data['_time_res'].to_series()
+    time_res = model.data['_time_resolution'].to_series()
 
     def get_e_eff_per_distance(model, y, x):
         e_loss = model.get_option(y + '.constraints_per_distance.e_loss', x=x)
@@ -292,12 +292,12 @@ def node_energy_balance(model):
         # B) Case where storage is allowed
         r = m.r[y, x, t]
         if m.t.order_dict[t] == 0:
-            s_minus_one = m.s_init[y, x]
+            s_minus_one = m.initial_storage[y, x]
         else:
             s_loss = get_constraint_param(model, 's_loss', y, x, t)
             s_minus_one = (((1 - s_loss)
-                            ** time_res.at[model.prev_t(t)])
-                           * m.s[y, x, model.prev_t(t)])
+                            ** time_res.at[model.previous_timestamp(t)])
+                           * m.s[y, x, model.previous_timestamp(t)])
         return (m.s[y, x, t] == s_minus_one + r + r2 - c_prod)
 
     def storage_rule(m, y, x, t):
@@ -314,12 +314,12 @@ def node_energy_balance(model):
         c_con = sum(m.c_con[c, y, x, t] for c in m.c) * total_eff
 
         if m.t.order_dict[t] == 0:
-            s_minus_one = m.s_init[y, x]
+            s_minus_one = m.initial_storage[y, x]
         else:
             s_loss = get_constraint_param(model, 's_loss', y, x, t)
             s_minus_one = (((1 - s_loss)
-                            ** time_res.at[model.prev_t(t)])
-                           * m.s[y, x, model.prev_t(t)])
+                            ** time_res.at[model.previous_timestamp(t)])
+                           * m.s[y, x, model.previous_timestamp(t)])
         return (m.s[y, x, t] == s_minus_one - c_prod - c_con)
 
     # Constraints
@@ -544,7 +544,7 @@ def node_constraints_build(model):
 
 def node_constraints_operational(model):
     m = model.m
-    time_res = model.data['_time_res'].to_series()
+    time_res = model.data['_time_resolution'].to_series()
 
     # Constraint rules
     def r_max_upper_rule(m, y, x, t):
@@ -563,7 +563,7 @@ def node_constraints_operational(model):
             return c_prod == 0
         p_eff = model.get_option(y + '.constraints.p_eff', x=x)
         if y in m.y_conversion_plus:  # Conversion techs with 2 output carriers
-            primary_carrier, other_carriers = model.get_cp_carriers(y, x)
+            primary_carrier, other_carriers = model.get_conversion_plus_carriers(y, x)
             if c == primary_carrier and allow_c_prod is True:
                 c_prod_max = time_res.at[t] * m.e_cap[y, x] * p_eff
                 return c_prod <= c_prod_max
@@ -585,7 +585,7 @@ def node_constraints_operational(model):
         if not min_use or not allow_c_prod:
             return po.Constraint.NoConstraint
         if y in m.y_conversion_plus:  # Conversion techs with 2 output carriers
-            primary_carrier, other_carriers = model.get_cp_carriers(y, x)
+            primary_carrier, other_carriers = model.get_conversion_plus_carriers(y, x)
             if c == primary_carrier:
                 c_prod_max = time_res.at[t] * m.e_cap[y, x] * min_use
                 return m.c_prod[c, y, x, t] >= c_prod_max
@@ -603,7 +603,7 @@ def node_constraints_operational(model):
         allow_c_con = get_constraint_param(model, 'e_con', y, x, t)
         p_eff = model.get_option(y + '.constraints.p_eff', x=x)
         if y in m.y_conversion or y in m.y_conversion_plus:
-            carriers = model.get_cp_carriers(y, x, direction='in')[1]
+            carriers = model.get_conversion_plus_carriers(y, x, direction='in')[1]
             if c not in carriers:
                 return m.c_con[c, y, x, t] == 0
             else:
@@ -681,7 +681,7 @@ def node_constraints_transmission(model):
 def node_costs(model):
 
     m = model.m
-    time_res = model.data['_time_res'].to_series()
+    time_res = model.data['_time_resolution'].to_series()
     weights = model.data['_weights'].to_series()
 
     cost_getter = utils.cost_getter(model.get_option)

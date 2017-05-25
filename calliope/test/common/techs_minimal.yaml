@@ -4,7 +4,7 @@ techs:
         carrier_out: power
         constraints:
             e_cap.max: 50
-            e_eff_ref: false
+            e_cap_min_use: false
         costs:
             monetary:
                 e_cap: 5

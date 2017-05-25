@@ -40,22 +40,22 @@ class TestInitialization:
 
     def test_gettimeres_1hourly(self):
         model = common.simple_model()
-        assert model.get_timeres() == 1
+        assert model.get_time_resolution() == 1
 
     def test_gettimeres_6hourly(self):
         path = common._add_test_path('common/t_6h')
         model = common.simple_model(path=path)
-        assert model.get_timeres() == 6
+        assert model.get_time_resolution() == 6
 
     def test_gettimeres_verify_1hourly(self):
         model = common.simple_model()
-        assert model.get_timeres(verify=True) == 1
+        assert model.get_time_resolution(verify=True) == 1
 
     def test_gettimeres_verify_erroneous(self):
         path = common._add_test_path('common/t_erroneous')
         model = common.simple_model(path=path)
         with pytest.raises(AssertionError):
-            model.get_timeres(verify=True)
+            model.get_time_resolution(verify=True)
 
     @pytest.fixture
     def sine_wave(self):
@@ -84,7 +84,7 @@ class TestInitialization:
     def test_scale_to_peak_scale_time_res_false(self, sine_wave):
         path = common._add_test_path('common/t_6h')
         model = common.simple_model(path=path)
-        scaled = model.scale_to_peak(sine_wave, 100, scale_time_res=False)
+        scaled = model.scale_to_peak(sine_wave, 100, scale_time_resolution=False)
         assert_almost_equal(float(scaled.max()), 100, tolerance=0.1)
         assert_almost_equal(float(scaled.min()), 50, tolerance=0.1)
 
@@ -114,8 +114,8 @@ class TestInitialization:
         assert model._sets['t'][0].hour == 0
         assert model._sets['t'][0].day == 1
         assert model._sets['t'][0].month == 1
-        assert model.data.attrs['time_res'] == 1
-        assert model.data['_time_res'].to_series().tolist() == [1] * 1416
+        assert model.data.attrs['time_resolution'] == 1
+        assert model.data['_time_resolution'].to_series().tolist() == [1] * 1416
         assert model.data.attrs['startup_time_bounds'] == pd.Timestamp('2005-01-01 12:00')
 
     def test_initialize_sets_timesteps_subset(self):
@@ -131,8 +131,8 @@ class TestInitialization:
         assert model._sets['t'][0].hour == 0
         assert model._sets['t'][0].day == 2
         assert model._sets['t'][0].month == 1
-        assert model.data.attrs['time_res'] == 1
-        assert model.data['_time_res'].to_series().tolist() == [1] * 48
+        assert model.data.attrs['time_resolution'] == 1
+        assert model.data['_time_resolution'].to_series().tolist() == [1] * 48
         assert model.data.attrs['startup_time_bounds'] == pd.Timestamp('2005-01-02 12:00')
 
     def test_initialize_sets_technologies(self):
@@ -277,7 +277,7 @@ class TestOptions:
 
     def test_get_option_specify_default_exists_but_false(self):
         model = common.simple_model()
-        assert model.get_option('ccgt.constraints.e_eff_ref',
+        assert model.get_option('ccgt.constraints.e_cap_min_use',
                                 default='ccgt.depreciation.plant_life') is False
 
     def test_get_option_location(self):

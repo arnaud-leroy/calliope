@@ -20,7 +20,7 @@ def ramping_rate(model):
 
     """
     m = model.m
-    time_res = model.data['_time_res'].to_series()
+    time_res = model.data['_time_resolution'].to_series()
 
     # Constraint rules
     def _ramping_rule(m, y, x, t, direction):

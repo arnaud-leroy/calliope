@@ -21,7 +21,7 @@ from .utils import AttrDict
 
 REQUIRED_TABLES = ['capacity_factor', 'levelized_cost',
                    'metadata', 'groups', 'shares', 'summary',
-                   'time_res']
+                   'time_resolution']
 
 
 def _check(path, solution):

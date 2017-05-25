@@ -46,11 +46,11 @@ def system_margin(model):
 
     """
     m = model.m
-    time_res = model.data['_time_res'].to_series()
+    time_res = model.data['_time_resolution'].to_series()
 
     def carrier(y, x):
         if y in m.y_conversion_plus:
-            return model.get_cp_carriers(y, x)[0]
+            return model.get_conversion_plus_carriers(y, x)[0]
         else:
             return model.get_option(y + '.carrier', default= y + '.carrier_out')
     # Constraint rules

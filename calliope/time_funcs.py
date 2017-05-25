@@ -125,7 +125,7 @@ def apply_clustering(data, timesteps, clustering_func, how, normalize=True, **kw
 
 _RESAMPLE_METHODS = {
     '_weights': 'mean',
-    '_time_res': 'sum',
+    '_time_resolution': 'sum',
     'r': 'sum',
     'e_eff': 'mean',
 }

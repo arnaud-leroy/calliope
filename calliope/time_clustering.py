@@ -42,7 +42,7 @@ def _get_datavars(data):
 
 
 def _get_timesteps_per_day(data):
-    timesteps_per_day = data.attrs['time_res'] * 24
+    timesteps_per_day = data.attrs['time_resolution'] * 24
     if isinstance(timesteps_per_day, float):
         assert timesteps_per_day.is_integer(), 'Timesteps/day must be integer.'
         timesteps_per_day = int(timesteps_per_day)
@@ -238,7 +238,7 @@ def map_clusters_to_data(data, clusters, how):
     weights = (value_counts.reindex(_hourly_from_daily_index(value_counts.index))
                            .fillna(method='ffill'))
     new_data['_weights'] = xr.DataArray(weights, dims=['t'])
-    new_data['_time_res'] = xr.DataArray(np.ones(len(new_data['t'])) * (24 / ts_per_day),
+    new_data['_time_resolution'] = xr.DataArray(np.ones(len(new_data['t'])) * (24 / ts_per_day),
                                          coords={'t': new_data['t']})
 
     return new_data
